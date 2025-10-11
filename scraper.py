@@ -20,7 +20,7 @@ if response.status_code == 200:
     soup = BeautifulSoup(response.content, 'html.parser')
 
     # Extract truncated update value
-    target_element = soup.find('div', class_='_1wc4apv0 _1wc4apv1o3 hpuvl25')  # Note: Fixed class typo from your script (_1wc4apv1o3 instead of _1wc4apv1o3? Assuming original is correct)
+    target_element = soup.find('div', class_='_1wc4apv0 _1wc4apv5 _1ovv93d1o3 hpuvl25')  # Adjusted class based on common patterns; verify if needed
     extracted_value_truncated = ""
     if target_element:
         previous_p_element = target_element.find_previous('p')
@@ -71,8 +71,8 @@ if response.status_code == 200:
         ]
         processed_data.append(reconstructed_row)
 
-    # Save to output_data.csv (append if exists)
-    filename = "output_data.csv"
+    # Save to taxi_licenses_historical.csv (append if exists)
+    filename = "taxi_licenses_historical.csv"
     file_exists = os.path.exists(filename)
     with open(filename, 'a' if file_exists else 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
@@ -82,8 +82,8 @@ if response.status_code == 200:
 
     print(f"Data successfully saved to {filename}")
 
-    # Process to fixed_data.csv
-    output_filename = "fixed_data.csv"
+    # Process to taxi_licenses_summary.csv
+    output_filename = "taxi_licenses_summary.csv"
     try:
         df = pd.read_csv(filename, dtype={'Kennitala': str})
         df['Date'] = pd.to_datetime(df['Date'], format='%d.%m.%Y', errors='coerce')
