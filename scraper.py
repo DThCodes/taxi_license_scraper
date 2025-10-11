@@ -4,6 +4,7 @@ import csv
 from datetime import datetime
 import os
 import pandas as pd
+import re  # Added for robust parsing
 
 # Column indices from scraped data (0-based)
 ORIGINAL_NAFN_COL = 0
@@ -14,19 +15,21 @@ ORIGINAL_FORRADAMADUR_COL = 4
 
 # URL to scrape
 url = "https://island.is/listi-yfir-rekstrarleyfishafa-i-leigubilaakstri"
-response = requests.get(url)
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}  # Added to mimic browser
+response = requests.get(url, headers=headers)
 
 if response.status_code == 200:
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    # Extract truncated update value
-    target_element = soup.find('div', class_='_1wc4apv0 _1wc4apv5 _1ovv93d1o3 hpuvl25')  # Adjusted class based on common patterns; verify if needed
+    # Extract truncated update value (updated for robustness: text-based search + regex, no fragile classes)
     extracted_value_truncated = ""
-    if target_element:
-        previous_p_element = target_element.find_previous('p')
-        if previous_p_element:
-            extracted_value = previous_p_element.get_text(strip=True)
-            extracted_value_truncated = extracted_value[8:]
+    update_p = soup.find('p', string=lambda t: t and 'Uppfært' in t)
+    if update_p:
+        extracted_text = update_p.get_text(strip=True)
+        match = re.search(r'Uppfært\s*(.+)', extracted_text)
+        if match:
+            extracted_value_truncated = match.group(1)
+    print(f"Extracted and truncated value: {extracted_value_truncated}")  # Added debug print
 
     # Find table
     table = soup.find('table', class_='_1wc4apv0 _1wc4apv5 _1ovv93d1o3 _1ovv93d1o4 b7a64p0')
